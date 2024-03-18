@@ -1,10 +1,10 @@
-package com.github.neapovil.change;
+package com.github.neapovil.backpacks;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
-public final class Change extends JavaPlugin
+public final class Backpacks extends JavaPlugin
 {
-    private static Change instance;
+    private static Backpacks instance;
 
     @Override
     public void onEnable()
@@ -12,7 +12,7 @@ public final class Change extends JavaPlugin
         instance = this;
     }
 
-    public static Change instance()
+    public static Backpacks instance()
     {
         return instance;
     }
