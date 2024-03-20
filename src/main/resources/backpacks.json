@@ -1,0 +1,14 @@
+{
+  "backpacks": [
+    {
+      "id": 1,
+      "name": "starter",
+      "displayName": "<!italic><green>Backpack (Starter)</green>",
+      "lore": [
+        "<!italic>Hello, World!"
+      ],
+      "size": 9,
+      "modelData": 123456
+    }
+  ]
+}
