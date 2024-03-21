@@ -8,21 +8,21 @@ import org.jetbrains.annotations.NotNull;
 
 import com.github.neapovil.backpacks.Backpacks;
 import com.github.neapovil.backpacks.gson.BackpackInventoryGson;
+import com.github.neapovil.backpacks.resources.BackpacksResource;
 
 public final class BackpackInventory implements InventoryHolder
 {
     private final Backpacks plugin;
-    private final int size;
-    private final int backpackId;
+    private final ItemStack itemStack;
+    private final BackpacksResource.Backpack backpack;
     private final Inventory inventory;
-    public ItemStack itemStack;
 
-    public BackpackInventory(Backpacks plugin, int size, int backpackId)
+    public BackpackInventory(Backpacks plugin, ItemStack itemStack, BackpacksResource.Backpack backpack)
     {
         this.plugin = plugin;
-        this.size = size;
-        this.backpackId = backpackId;
-        this.inventory = Bukkit.createInventory(this, size);
+        this.itemStack = itemStack;
+        this.backpack = backpack;
+        this.inventory = Bukkit.createInventory(this, this.backpack.size, backpack.displayName());
     }
 
     @Override
@@ -46,7 +46,7 @@ public final class BackpackInventory implements InventoryHolder
             return;
         }
 
-        for (int i = 0; i < this.size; i++)
+        for (int i = 0; i < this.backpack.size; i++)
         {
             inventory.setItem(i, backpackinventorygson.items.get(i));
         }
@@ -54,9 +54,9 @@ public final class BackpackInventory implements InventoryHolder
 
     public void serialize()
     {
-        final BackpackInventoryGson backpackinventorygson = new BackpackInventoryGson(this.backpackId);
+        final BackpackInventoryGson backpackinventorygson = new BackpackInventoryGson(this.backpack.id);
 
-        for (int i = 0; i < this.size; i++)
+        for (int i = 0; i < this.backpack.size; i++)
         {
             backpackinventorygson.items.add(i, inventory.getItem(i));
         }

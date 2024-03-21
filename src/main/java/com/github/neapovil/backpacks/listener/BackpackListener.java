@@ -43,8 +43,7 @@ public final class BackpackListener implements Listener
                 plugin.backpackDataType);
 
         plugin.backpacksResource().find(backpackinventorygson.backpackId).ifPresent(backpack -> {
-            final BackpackInventory backpackinventory = new BackpackInventory(plugin, backpack.size, backpack.id);
-            backpackinventory.itemStack = event.getItem();
+            final BackpackInventory backpackinventory = new BackpackInventory(plugin, event.getItem(), backpack);
             backpackinventory.deserialize();
             this.backpacks.put(event.getPlayer().getUniqueId(), backpackinventory);
             event.getPlayer().openInventory(backpackinventory.getInventory());

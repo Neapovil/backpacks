@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import com.github.neapovil.backpacks.gson.BackpackInventoryGson;
 import com.google.gson.Gson;
 
-public class BackpackDataType implements PersistentDataType<String, BackpackInventoryGson>
+public final class BackpackDataType implements PersistentDataType<String, BackpackInventoryGson>
 {
     private final Gson gson = new Gson();
 
