@@ -4,11 +4,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.inventory.Inventory;
 
 import com.destroystokyo.paper.event.server.ServerTickEndEvent;
 import com.destroystokyo.paper.event.server.ServerTickStartEvent;
@@ -43,9 +47,13 @@ public final class BackpackListener implements Listener
                 plugin.backpackDataType);
 
         plugin.backpacksResource().find(backpackinventorygson.backpackId).ifPresent(backpack -> {
-            final BackpackInventory backpackinventory = new BackpackInventory(plugin, event.getItem(), backpack);
+            if (backpack.update != backpackinventorygson.backpackUpdate)
+            {
+                backpack.apply(event.getItem());
+            }
+            final BackpackInventory backpackinventory = this.backpacks.computeIfAbsent(event.getPlayer().getUniqueId(),
+                    (k) -> new BackpackInventory(plugin, event.getItem(), backpack));
             backpackinventory.deserialize();
-            this.backpacks.put(event.getPlayer().getUniqueId(), backpackinventory);
             event.getPlayer().openInventory(backpackinventory.getInventory());
         });
     }
@@ -93,5 +101,35 @@ public final class BackpackListener implements Listener
         {
             event.setCancelled(true);
         }
+    }
+
+    @EventHandler
+    private void onInventoryOpen(InventoryOpenEvent event)
+    {
+        this.updateBackpacks(event.getInventory());
+    }
+
+    @EventHandler
+    private void onPlayerJoin(PlayerJoinEvent event)
+    {
+        this.updateBackpacks(event.getPlayer().getInventory());
+    }
+
+    private void updateBackpacks(Inventory inventory)
+    {
+        inventory.all(Material.CLOCK)
+                .values()
+                .stream()
+                .filter(i -> i.getItemMeta().getPersistentDataContainer().has(plugin.BACKPACK_KEY))
+                .forEach(i -> {
+                    final BackpackInventoryGson backpackinventorygson = i.getItemMeta().getPersistentDataContainer().get(plugin.BACKPACK_KEY,
+                            plugin.backpackDataType);
+                    plugin.backpacksResource().find(backpackinventorygson.backpackId).ifPresent(backpack -> {
+                        if (backpack.update != backpackinventorygson.backpackUpdate)
+                        {
+                            backpack.apply(i);
+                        }
+                    });
+                });
     }
 }

@@ -1,5 +1,7 @@
 package com.github.neapovil.backpacks.inventory;
 
+import java.util.Arrays;
+
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -15,14 +17,14 @@ public final class BackpackInventory implements InventoryHolder
     private final Backpacks plugin;
     private final ItemStack itemStack;
     private final BackpacksResource.Backpack backpack;
-    private final Inventory inventory;
+    private Inventory inventory;
+    private BackpackInventoryGson backpackInventoryGson;
 
     public BackpackInventory(Backpacks plugin, ItemStack itemStack, BackpacksResource.Backpack backpack)
     {
         this.plugin = plugin;
         this.itemStack = itemStack;
         this.backpack = backpack;
-        this.inventory = Bukkit.createInventory(this, this.backpack.size, backpack.displayName());
     }
 
     @Override
@@ -33,36 +35,28 @@ public final class BackpackInventory implements InventoryHolder
 
     public void deserialize()
     {
-        final BackpackInventoryGson backpackinventorygson = this.itemStack.getItemMeta().getPersistentDataContainer().get(plugin.BACKPACK_KEY,
+        this.backpackInventoryGson = this.itemStack.getItemMeta().getPersistentDataContainer().get(plugin.BACKPACK_KEY,
                 plugin.backpackDataType);
 
-        if (backpackinventorygson == null)
+        if (this.backpackInventoryGson == null)
         {
-            return;
+            this.backpackInventoryGson = new BackpackInventoryGson(this.backpack.id, this.backpack.update, this.backpack.size);
+            this.inventory.getViewers()
+                    .forEach(i -> i.sendRichMessage("<red>Something was wrong with this backpack. The backpack has been rebuilded. ALL items lost."));
         }
 
-        if (backpackinventorygson.items.size() == 0)
-        {
-            return;
-        }
+        this.inventory = Bukkit.createInventory(this, Math.max(this.backpack.size, this.backpackInventoryGson.backpackSize), backpack.displayName());
 
-        for (int i = 0; i < this.backpack.size; i++)
-        {
-            inventory.setItem(i, backpackinventorygson.items.get(i));
-        }
+        this.inventory.setContents(this.backpackInventoryGson.items.toArray(ItemStack[]::new));
     }
 
     public void serialize()
     {
-        final BackpackInventoryGson backpackinventorygson = new BackpackInventoryGson(this.backpack.id);
-
-        for (int i = 0; i < this.backpack.size; i++)
-        {
-            backpackinventorygson.items.add(i, inventory.getItem(i));
-        }
+        this.backpackInventoryGson.items.clear();
+        this.backpackInventoryGson.items.addAll(Arrays.asList(this.inventory.getContents()));
 
         this.itemStack.editMeta(itemmeta -> {
-            itemmeta.getPersistentDataContainer().set(plugin.BACKPACK_KEY, plugin.backpackDataType, backpackinventorygson);
+            itemmeta.getPersistentDataContainer().set(plugin.BACKPACK_KEY, plugin.backpackDataType, this.backpackInventoryGson);
         });
     }
 }

@@ -40,6 +40,7 @@ public final class BackpacksResource
         public List<String> lore = new ArrayList<>();
         public int size;
         public int modelData;
+        public int update;
 
         public Component displayName()
         {
@@ -53,15 +54,32 @@ public final class BackpacksResource
 
         public ItemStack itemStack()
         {
-            final Backpacks plugin = Backpacks.instance();
             final ItemStack itemstack = new ItemStack(Material.CLOCK);
-            itemstack.editMeta(itemmeta -> {
+            this.apply(itemstack);
+            return itemstack;
+        }
+
+        public void apply(ItemStack itemStack)
+        {
+            final Backpacks plugin = Backpacks.instance();
+            itemStack.editMeta(itemmeta -> {
                 itemmeta.displayName(this.displayName());
                 itemmeta.lore(this.lore());
                 itemmeta.setCustomModelData(this.modelData);
-                itemmeta.getPersistentDataContainer().set(plugin.BACKPACK_KEY, plugin.backpackDataType, new BackpackInventoryGson(this.id));
+
+                BackpackInventoryGson backpackinventorygson = itemmeta.getPersistentDataContainer().get(plugin.BACKPACK_KEY, plugin.backpackDataType);
+
+                if (backpackinventorygson == null)
+                {
+                    backpackinventorygson = new BackpackInventoryGson(this.id, this.update, this.size);
+                }
+                else
+                {
+                    backpackinventorygson.backpackUpdate = this.update;
+                }
+
+                itemmeta.getPersistentDataContainer().set(plugin.BACKPACK_KEY, plugin.backpackDataType, backpackinventorygson);
             });
-            return itemstack;
         }
     }
 }

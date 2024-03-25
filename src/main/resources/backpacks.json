@@ -8,7 +8,8 @@
         "<!italic>Hello, World!"
       ],
       "size": 9,
-      "modelData": 123456
+      "modelData": 123456,
+      "update": 1
     }
   ]
 }

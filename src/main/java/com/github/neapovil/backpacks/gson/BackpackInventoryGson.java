@@ -18,16 +18,20 @@ import com.google.gson.annotations.JsonAdapter;
 
 public final class BackpackInventoryGson
 {
-    @JsonAdapter(Adapter.class)
+    @JsonAdapter(ItemsAdapter.class)
     public List<ItemStack> items = new ArrayList<>();
     public int backpackId;
+    public int backpackUpdate;
+    public int backpackSize;
 
-    public BackpackInventoryGson(int backpackId)
+    public BackpackInventoryGson(int backpackId, int backpackUpdate, int backpackSize)
     {
         this.backpackId = backpackId;
+        this.backpackUpdate = backpackUpdate;
+        this.backpackSize = backpackSize;
     }
 
-    class Adapter implements JsonSerializer<List<ItemStack>>, JsonDeserializer<List<ItemStack>>
+    class ItemsAdapter implements JsonSerializer<List<ItemStack>>, JsonDeserializer<List<ItemStack>>
     {
         @Override
         public List<ItemStack> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
